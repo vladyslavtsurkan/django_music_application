@@ -8,6 +8,9 @@ class TrackShortSpotifySchema(BaseSpotifySchema):
         if self._data['type'] != 'track':
             raise TypeError(f'This is not Spotify Track -> type: {self._data["type"]}')
 
+    def is_full_information(self) -> bool:
+        return bool(self._data.get('album'))
+
     @property
     def track_number_of_album(self) -> int | None:
         return self._data.get('track_number')

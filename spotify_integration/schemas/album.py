@@ -10,6 +10,9 @@ class AlbumShortSpotifySchema(BaseSpotifySchema):
         if self._data['type'] != 'album':
             raise TypeError(f'This is not Spotify Album -> type: {self._data["type"]}')
 
+    def is_full_information(self) -> bool:
+        return bool(self._data.get('tracks'))
+
     @property
     def image_url(self) -> str:
         self.check_for_detail_data_key('images')

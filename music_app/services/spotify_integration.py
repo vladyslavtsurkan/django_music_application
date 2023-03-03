@@ -14,12 +14,6 @@ from spotify_integration import (
 
 logger = logging.getLogger(__name__)
 
-_types_of_spotify_api = {
-    'artist': Artist,
-    'album': Album,
-    'track': Track,
-}
-
 
 def get_or_create_genres(genre_names_list: list[str]) -> Generator:
     for genre_name in genre_names_list:
@@ -27,29 +21,27 @@ def get_or_create_genres(genre_names_list: list[str]) -> Generator:
         yield genre
 
 
-def search_and_save_artist(query: str):
+def search_artists_by_query(query: str) -> list[dict]:
     response = client_spotify.search(q=query, limit=10, type='artist')
     artists = response.get('artists', {}).get('items', [])
 
-    for artist in artists:
+    return artists
+
+
+def save_artists_to_database(artists_list: list[dict]) -> None:
+    for artist in artists_list:
         artist_by_schema = ArtistSpotifySchema(artist)
 
-        artist_instance, created = Artist.objects.get_or_create(
-            name=artist_by_schema.name,
-            spotify_id=artist_by_schema.spotify_id,
-            spotify_uri=artist_by_schema.spotify_uri,
-            artist_image_url=artist_by_schema.image_url
-        )
+        artist_dict = {
+            'name': artist_by_schema.name,
+            'spotify_id': artist_by_schema.spotify_id,
+            'spotify_uri': artist_by_schema.spotify_uri,
+        }
 
-        if not artist_instance.is_full_record:
+        artist_instance, created = Artist.objects.get_or_create(**artist_dict)
+
+        if not artist_instance.is_full_record and artist_by_schema.is_full_information():
             artist_instance.is_full_record = True
+            artist_instance.artist_image_url = artist_by_schema.image_url
             artist_instance.save()
-
-        artist_instance.genres.add(*get_or_create_genres(artist_by_schema.genres))
-
-
-
-
-
-
-
+            artist_instance.genres.add(*get_or_create_genres(artist_by_schema.genres))

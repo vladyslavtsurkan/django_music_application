@@ -5,7 +5,7 @@ from spotipy.oauth2 import SpotifyClientCredentials
 auth_manager = SpotifyClientCredentials()
 client_spotify = spotipy.Spotify(auth_manager=auth_manager)
 
-search = client_spotify.search('rammstein', limit=20, type='artist')
+search = client_spotify.search('rammstein', limit=20, type='track')
 # artist_rammstein = client_spotify.artist('6wWVKhxIU2cEi0K81v7HvP')
 # album_mutter = client_spotify.album('https://open.spotify.com/album/1CtTTpKbHU8KbHRB4LmBbv?si=cLx2YFy6QBioh75X2C0OxQ')
 #### album_mutter = sp.album('https://open.spotify.com/album/4POwouNbBP807ciWs9WIfM?si=hF9ku8N-QtqAJHZgWB4bVQ')

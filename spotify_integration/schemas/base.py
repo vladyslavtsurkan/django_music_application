@@ -8,6 +8,10 @@ class BaseSpotifySchema(ABC):
     def __init__(self):
         pass
 
+    @abstractmethod
+    def is_full_information(self):
+        pass
+
     def check_for_detail_data_key(self, key) -> None:
         """Some keys are only in the detail response, raise an
         exception if the key is not found."""
