@@ -40,8 +40,8 @@ class Artist(models.Model):
         MinLengthValidator(22),
     ], unique=True, null=False, db_index=True)
     spotify_uri = models.CharField('Spotify URI', max_length=50, unique=True, null=False)
-    genres = models.ManyToManyField('Genre', related_name='artists')
-    is_full_record = models.BooleanField('Full record about artist')
+    genres = models.ManyToManyField('Genre', related_name='artists', null=True)
+    is_full_record = models.BooleanField('Full record about artist', default=False)
 
     def __str__(self):
         return self.name
@@ -61,7 +61,7 @@ class Track(models.Model):
     artists = models.ManyToManyField('Artist', related_name='tracks')
     available_markets = models.ManyToManyField('Market', related_name='tracks')
     external_ids = GenericRelation(ExternalID)
-    is_full_record = models.BooleanField('Full record about track')
+    is_full_record = models.BooleanField('Full record about track', default=False)
 
     def __str__(self):
         return self.name
@@ -99,12 +99,12 @@ class Album(models.Model):
     release_date = models.DateField('Release date')
     album_image_url = models.URLField('Album image URL')
     album_type = models.ForeignKey('AlbumType', on_delete=models.CASCADE)
-    copyrights = models.ManyToManyField('CopyrightAlbum', related_name='albums')
+    copyrights = models.ManyToManyField('CopyrightAlbum', related_name='albums', null=True)
     artists = models.ManyToManyField('Artist', related_name='albums')
-    genres = models.ManyToManyField('Genre',  related_name='albums')
+    genres = models.ManyToManyField('Genre',  related_name='albums', null=True)
     available_markets = models.ManyToManyField('Market', related_name='albums')
     external_ids = GenericRelation(ExternalID)
-    is_full_record = models.BooleanField('Full record about album')
+    is_full_record = models.BooleanField('Full record about album', default=False)
 
     def __str__(self):
         return self.name

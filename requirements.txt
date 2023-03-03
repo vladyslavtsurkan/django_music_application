@@ -1,4 +1,4 @@
-django==4.1.7
+django[argon2]==4.1.7
 djangorestframework==3.14.0
 spotipy==2.22.1
 django-silk==5.0.3
