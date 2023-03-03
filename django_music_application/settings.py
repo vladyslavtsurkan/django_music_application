@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -40,7 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'rest_framework',
+    'rest_framework.authtoken',
     'silk',
+    'django_filters',
 
     'auth_app',
     'music_app',
@@ -152,6 +155,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+PASSWORD_HASHERS = [
+  'django.contrib.auth.hashers.Argon2PasswordHasher',
+  'django.contrib.auth.hashers.PBKDF2PasswordHasher',
+  'django.contrib.auth.hashers.PBKDF2SHA1PasswordHasher',
+  'django.contrib.auth.hashers.BCryptSHA256PasswordHasher',
+]
+
 AUTH_USER_MODEL = 'auth_app.CustomUser'
 
 # Internationalization
@@ -175,3 +185,47 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# DRF settings
+
+REST_FRAMEWORK = {
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+    ],
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.BasicAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
+        "rest_framework.authentication.TokenAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+    ],
+    "DEFAULT_THROTTLE_CLASSES": [
+        "music_app.api.throttling.AnonSustainedThrottle",
+        "music_app.api.throttling.AnonBurstThrottle",
+        "music_app.api.throttling.UserSustainedThrottle",
+        "music_app.api.throttling.UserBurstThrottle",
+    ],
+    "DEFAULT_THROTTLE_RATES": {
+        "anon_sustained": "500/day",
+        "anon_burst": "10/minute",
+        "user_sustained": "5000/day",
+        "user_burst": "100/minute",
+    },
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 50,
+    "DEFAULT_FILTER_BACKENDS": [
+        "django_filters.rest_framework.DjangoFilterBackend",
+        "rest_framework.filters.OrderingFilter",
+    ],
+}
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(days=1),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+}
+
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Token": {"type": "apiKey", "name": "Authorization", "in": "header"},
+        "Basic": {"type": "basic"},
+    }
+}

@@ -18,6 +18,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', include('music_app.urls')),
 ]
 
 urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
