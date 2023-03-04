@@ -11,7 +11,7 @@ class AlbumShortSpotifySchema(BaseSpotifySchema):
             raise TypeError(f'This is not Spotify Album -> type: {self._data["type"]}')
 
     def is_full_information(self) -> bool:
-        return bool(self._data.get('tracks'))
+        return bool(self._data.get('tracks') is not None and self._data.get('genres') is not None)
 
     @property
     def image_url(self) -> str:
@@ -29,11 +29,11 @@ class AlbumShortSpotifySchema(BaseSpotifySchema):
         return self._data['available_markets']
 
     @property
-    def artists_spotify_ids(self) -> list[str]:
+    def artist_dicts(self) -> list[dict]:
         self.check_for_detail_data_key('artists')
         artists = self._data['artists']
 
-        return [artist['id'] for artist in artists]
+        return [artist for artist in artists]
 
     @property
     def release_date(self) -> date:
@@ -53,9 +53,9 @@ class AlbumShortSpotifySchema(BaseSpotifySchema):
                     month=int(month_str),
                     day=1,
                 )
-            case year_str:
+            case year:
                 release_date = date(
-                    year=int(year_str),
+                    year=int(year[0]),
                     month=1,
                     day=1,
                 )
@@ -78,3 +78,8 @@ class AlbumSpotifySchema(AlbumShortSpotifySchema):
     def genres(self) -> list[str]:
         self.check_for_detail_data_key('genres')
         return self._data['genres']
+
+    @property
+    def tracks(self) -> list[dict]:
+        self.check_for_detail_data_key('tracks')
+        return self._data['tracks']['items']

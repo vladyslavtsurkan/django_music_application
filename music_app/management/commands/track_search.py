@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
 
 from music_app.services.spotify_integration import (
-    search_artists_by_query,
-    save_artists_to_database,
+    search_tracks_by_query,
+    save_tracks_to_database
 )
 
 
@@ -14,5 +14,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         search = " ".join(options["search"])
-        artist_list = search_artists_by_query(search)
-        save_artists_to_database(artist_list)
+        track_list = search_tracks_by_query(search)
+        save_tracks_to_database(track_list)

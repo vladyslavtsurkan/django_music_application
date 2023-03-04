@@ -48,7 +48,7 @@ class CopyrightAlbumSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CopyrightAlbum
-        fields = ['id', 'text']
+        fields = ['id', 'text', 'copyright_type']
 
 
 class ArtistSerializer(serializers.ModelSerializer):

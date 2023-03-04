@@ -9,7 +9,7 @@ class ArtistShortSpotifySchema(BaseSpotifySchema):
             raise TypeError(f'This is not Spotify Artist -> type: {self._data["type"]}')
 
     def is_full_information(self) -> bool:
-        return bool(self._data.get('genres'))
+        return bool(self._data.get('genres') is not None)
 
 
 class ArtistSpotifySchema(ArtistShortSpotifySchema):
