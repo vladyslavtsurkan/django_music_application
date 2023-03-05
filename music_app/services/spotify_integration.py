@@ -1,5 +1,7 @@
 import logging
+from time import sleep
 from typing import Generator, Sequence, Literal
+from requests.exceptions import Timeout
 
 from django.contrib.contenttypes.models import ContentType
 
@@ -24,8 +26,8 @@ from spotify_integration import (
 logger = logging.getLogger(__name__)
 client_spotify = SpotifyClient()
 
-LIMIT_ARTIST_OBJECTS = 20
-LIMIT_ALBUM_OBJECTS = 20
+LIMIT_ARTIST_OBJECTS = 50
+LIMIT_ALBUM_OBJECTS = 50
 LIMIT_TRACK_OBJECTS = 50
 
 _type_to_model = {
@@ -179,7 +181,7 @@ def save_album_to_database(album_dict: dict) -> Album:
 
 
 def search_tracks_by_query(query: str) -> list[dict]:
-    response = client_spotify.search(q=query, limit=LIMIT_TRACK_OBJECTS, type='album')
+    response = client_spotify.search(q=query, limit=LIMIT_TRACK_OBJECTS, type='track')
     tracks = response.get('tracks', {}).get('items', [])
 
     return tracks
@@ -208,6 +210,7 @@ def save_track_to_database(track_dict: dict) -> Track:
     }
 
     track_instance, created = Track.objects.get_or_create(**track_dict_for_save)
+
     track_instance.available_markets.add(
         *get_or_create_markets(track_by_schema.available_markets)
     )
@@ -248,13 +251,18 @@ def full_model_by_type_and_spotify_ids(
         spotify_ids_list: Sequence[str]
 ) -> None:
     for spotify_id in spotify_ids_list:
-        object_dict = client_spotify.get_object_by_type_and_spotify_id_or_uri(type_str, spotify_id)
-        match type_str:
-            case 'artist':
-                save_artist_to_database(object_dict)
-            case 'album':
-                save_album_to_database(object_dict)
-            case 'track':
-                save_track_to_database(object_dict)
-            case _:
-                raise ValueError("Unknown type")
+        try:
+            object_dict = client_spotify.get_object_by_type_and_spotify_id_or_uri(type_str, spotify_id)
+            match type_str:
+                case 'artist':
+                    save_artist_to_database(object_dict)
+                case 'album':
+                    save_album_to_database(object_dict)
+                case 'track':
+                    save_track_to_database(object_dict)
+                case _:
+                    raise ValueError("Unknown type")
+
+            sleep(0.1)
+        except Timeout:
+            sleep(5)

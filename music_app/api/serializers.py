@@ -52,23 +52,48 @@ class CopyrightAlbumSerializer(serializers.ModelSerializer):
 
 
 class ArtistSerializer(serializers.ModelSerializer):
-    genres = GenreSerializer(many=True, read_only=True)
-
     class Meta:
         model = Artist
+        exclude = ['genres']
+
+
+class ArtistDetailSerializer(ArtistSerializer):
+    genres = GenreSerializer(many=True, read_only=True)
+
+    class Meta(ArtistSerializer.Meta):
+        exclude = []
         fields = '__all__'
 
 
 class AlbumSerializer(serializers.ModelSerializer):
     album_type = AlbumTypeSerializer(read_only=True)
-    copyrights = CopyrightAlbumSerializer(read_only=True, many=True)
     artists = ArtistSerializer(read_only=True, many=True)
-    genres = GenreSerializer(many=True, read_only=True)
+    available_markets = MarketSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Album
+        exclude = ['copyrights', 'genres']
+
+
+class AlbumTrackDetailSerializer(serializers.ModelSerializer):
+    artists = ArtistSerializer(read_only=True, many=True)
     available_markets = MarketSerializer(many=True, read_only=True)
     external_ids = ExternalIDSerializer(many=True, read_only=True)
 
     class Meta:
-        model = Album
+        model = Track
+        # fields = '__all__'
+        exclude = ['album']
+
+
+class AlbumDetailSerializer(AlbumSerializer):
+    copyrights = CopyrightAlbumSerializer(read_only=True, many=True)
+    genres = GenreSerializer(many=True, read_only=True)
+    external_ids = ExternalIDSerializer(many=True, read_only=True)
+    tracks = AlbumTrackDetailSerializer(many=True, read_only=True)
+
+    class Meta(AlbumSerializer.Meta):
+        exclude = []
         fields = '__all__'
 
 
@@ -76,8 +101,11 @@ class TrackSerializer(serializers.ModelSerializer):
     album = AlbumSerializer(read_only=True)
     artists = ArtistSerializer(read_only=True, many=True)
     available_markets = MarketSerializer(many=True, read_only=True)
-    external_ids = ExternalIDSerializer(many=True, read_only=True)
 
     class Meta:
         model = Track
         fields = '__all__'
+
+
+class TrackDetailSerializer(TrackSerializer):
+    external_ids = ExternalIDSerializer(many=True, read_only=True)

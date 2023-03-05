@@ -1,9 +1,9 @@
 from django_filters import rest_framework as filters
 
-from music_app.models import Artist
+from music_app.models import Artist, Track, Album
 
 
-class ArtistFilterSet(filters.FilterSet):
+class BaseSpotifyFilterSet(filters.FilterSet):
     name = filters.CharFilter(
         field_name='name',
         lookup_expr='icontains',
@@ -20,6 +20,20 @@ class ArtistFilterSet(filters.FilterSet):
         label='Artist Spotify URI',
     )
 
+
+class ArtistFilterSet(BaseSpotifyFilterSet):
     class Meta:
         model = Artist
+        fields = []
+
+
+class TrackFilterSet(BaseSpotifyFilterSet):
+    class Meta:
+        model = Track
+        fields = []
+
+
+class AlbumFilterSet(BaseSpotifyFilterSet):
+    class Meta:
+        model = Album
         fields = []

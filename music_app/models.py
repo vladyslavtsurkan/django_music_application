@@ -5,8 +5,8 @@ from django.core.validators import MaxLengthValidator, MinLengthValidator
 
 
 class ExternalID(models.Model):
-    name = models.CharField('External ID name', max_length=30, null=False)
-    value = models.CharField('External ID value', max_length=30, null=False)
+    name = models.CharField('External ID name', max_length=50, null=False)
+    value = models.CharField('External ID value', max_length=50, null=False)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=False)
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey("content_type", "object_id")
@@ -33,7 +33,7 @@ class Genre(models.Model):
 
 
 class Artist(models.Model):
-    name = models.CharField("Group name", max_length=100, null=False)
+    name = models.CharField("Group name", max_length=200, null=False)
     artist_image_url = models.URLField('Artist image URL', null=True)
     spotify_id = models.CharField('Spotify ID', max_length=22, validators=[
         MaxLengthValidator(22),
@@ -48,7 +48,7 @@ class Artist(models.Model):
 
 
 class Track(models.Model):
-    name = models.CharField('Track name', max_length=100, null=False)
+    name = models.CharField('Track name', max_length=200, null=False)
     track_number_of_album = models.PositiveSmallIntegerField('Track number of album')
     duration_ms = models.PositiveIntegerField('Track duration (ms)')
     spotify_id = models.CharField('Spotify ID', max_length=22, validators=[
@@ -82,7 +82,7 @@ class CopyrightAlbumType(models.Model):
 
 
 class CopyrightAlbum(models.Model):
-    text = models.CharField('Copyright text', max_length=100, null=False)
+    text = models.CharField('Copyright text', max_length=200, null=False)
     copyright_type = models.ForeignKey('CopyrightAlbumType', on_delete=models.CASCADE, null=False)
 
     def __str__(self):
@@ -90,7 +90,7 @@ class CopyrightAlbum(models.Model):
 
 
 class Album(models.Model):
-    name = models.CharField('Album name', max_length=100, null=False)
+    name = models.CharField('Album name', max_length=200, null=False)
     spotify_id = models.CharField('Spotify ID', max_length=22, validators=[
         MaxLengthValidator(22),
         MinLengthValidator(22),
