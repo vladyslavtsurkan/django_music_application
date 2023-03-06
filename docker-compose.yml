@@ -11,19 +11,14 @@ services:
       - postgres:postgres
     depends_on:
       - postgres
-      - migration
+      - redis
     volumes:
       - ./data/django-web:/usr/src/app
       - ./data/django-static:/usr/src/app/static
     env_file: .env
-    command: python manage.py runserver 0.0.0.0:8000
-
-  migration:
-    image: music_app
-    command: python manage.py migrate --noinput
-    env_file: .env
-    depends_on:
-      - postgres
+    command: >
+      sh -c "python3 manage.py migrate &&
+             python3 manage.py runserver 0.0.0.0:8000"
 
   postgres:
     image: postgres:15.1
@@ -36,3 +31,9 @@ services:
       POSTGRES_DB: music_application_db
     volumes:
       - ./data/db:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7.0.9
+    restart: unless-stopped
+    expose:
+      - 6379

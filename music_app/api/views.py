@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from music_app.models import Artist, Album, Track
@@ -34,6 +36,14 @@ class ArtistViewSet(ReadOnlyModelViewSet):
 
         return queryset
 
+    @method_decorator(cache_page(180))
+    def list(self, request, *args, **kwargs):
+        return super(ArtistViewSet, self).list(request, *args, **kwargs)
+
+    @method_decorator(cache_page(300))
+    def retrieve(self, request, *args, **kwargs):
+        return super(ArtistViewSet, self).retrieve(request, *args, **kwargs)
+
 
 class AlbumViewSet(ReadOnlyModelViewSet):
     queryset = Album.objects.all()
@@ -59,6 +69,14 @@ class AlbumViewSet(ReadOnlyModelViewSet):
 
         return queryset
 
+    @method_decorator(cache_page(180))
+    def list(self, request, *args, **kwargs):
+        return super(AlbumViewSet, self).list(request, *args, **kwargs)
+
+    @method_decorator(cache_page(300))
+    def retrieve(self, request, *args, **kwargs):
+        return super(AlbumViewSet, self).retrieve(request, *args, **kwargs)
+
 
 class TrackViewSet(ReadOnlyModelViewSet):
     queryset = Track.objects.all()
@@ -83,3 +101,11 @@ class TrackViewSet(ReadOnlyModelViewSet):
             )
 
         return queryset
+
+    @method_decorator(cache_page(180))
+    def list(self, request, *args, **kwargs):
+        return super(TrackViewSet, self).list(request, *args, **kwargs)
+
+    @method_decorator(cache_page(300))
+    def retrieve(self, request, *args, **kwargs):
+        return super(TrackViewSet, self).retrieve(request, *args, **kwargs)
