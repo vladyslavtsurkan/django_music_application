@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'silk',
     'django_filters',
+    'drf_yasg',
 
     'auth_app',
     'music_app',

@@ -7,17 +7,17 @@ class BaseSpotifyFilterSet(filters.FilterSet):
     name = filters.CharFilter(
         field_name='name',
         lookup_expr='icontains',
-        label='Artist name',
+        label='Name',
     )
     spotify_id = filters.CharFilter(
         field_name='spotify_id',
         lookup_expr='exact',
-        label='Artist Spotify ID',
+        label='Spotify ID',
     )
     spotify_uri = filters.CharFilter(
         field_name='spotify_uri',
         lookup_expr='exact',
-        label='Artist Spotify URI',
+        label='Spotify URI',
     )
 
 
