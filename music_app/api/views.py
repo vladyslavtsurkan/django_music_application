@@ -14,7 +14,7 @@ from music_app.api.serializers import (
 from music_app.api.filters import (
     ArtistFilterSet,
     TrackFilterSet,
-    AlbumFilterSet
+    AlbumFilterSet,
 )
 from music_app.api.pagination import TrackResultsSetPagination
 
@@ -36,7 +36,7 @@ class ArtistViewSet(ReadOnlyModelViewSet):
 
         return queryset
 
-    @method_decorator(cache_page(180))
+    @method_decorator(cache_page(300))
     def list(self, request, *args, **kwargs):
         return super(ArtistViewSet, self).list(request, *args, **kwargs)
 
@@ -63,13 +63,14 @@ class AlbumViewSet(ReadOnlyModelViewSet):
 
         if self.action not in ("list", "create"):
             queryset = queryset.prefetch_related(
-                'external_ids', 'copyrights', 'copyrights__copyright_type', 'tracks', 'tracks__available_markets',
-                'genres', 'tracks', 'tracks__available_markets', 'tracks__artists', 'tracks__external_ids',
+                'external_ids', 'copyrights', 'copyrights__copyright_type', 'genres', 'tracks',
+                'tracks__available_markets', 'tracks__artists', 'tracks__external_ids', 'tracks__available_markets',
+                'external_ids__content_type',
             )
 
         return queryset
 
-    @method_decorator(cache_page(180))
+    @method_decorator(cache_page(300))
     def list(self, request, *args, **kwargs):
         return super(AlbumViewSet, self).list(request, *args, **kwargs)
 
@@ -90,7 +91,7 @@ class TrackViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         queryset = self.queryset.all().select_related(
-            'album', 'album__album_type'
+            'album', 'album__album_type',
         ).prefetch_related(
             'artists', 'available_markets', 'album__available_markets', 'album__artists',
         )
@@ -102,7 +103,7 @@ class TrackViewSet(ReadOnlyModelViewSet):
 
         return queryset
 
-    @method_decorator(cache_page(180))
+    @method_decorator(cache_page(300))
     def list(self, request, *args, **kwargs):
         return super(TrackViewSet, self).list(request, *args, **kwargs)
 

@@ -3,6 +3,9 @@ from django.contrib.auth.models import AbstractUser, UserManager
 from django.utils.translation import gettext_lazy as _
 
 
+from music_app.models import Track
+
+
 class CustomUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
         if not email:
@@ -36,6 +39,7 @@ class CustomUser(AbstractUser):
         _("email address"),
         unique=True,
     )
+    favorite_tracks = models.ManyToManyField(Track, related_name='user_likes')
 
     objects = CustomUserManager()
 

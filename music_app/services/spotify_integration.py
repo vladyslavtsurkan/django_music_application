@@ -95,13 +95,13 @@ def save_artists_to_database(artist_list: list[dict]) -> list[Artist]:
 def save_artist_to_database(artist_dict: dict) -> Artist:
     artist_by_schema = ArtistSpotifySchema(artist_dict)
 
-    artist_dict_for_save = {
-        'name': artist_by_schema.name,
-        'spotify_id': artist_by_schema.spotify_id,
-        'spotify_uri': artist_by_schema.spotify_uri,
-    }
-
-    artist_instance, created = Artist.objects.get_or_create(**artist_dict_for_save)
+    artist_instance, created = Artist.objects.update_or_create(
+        spotify_id=artist_by_schema.spotify_id,
+        spotify_uri=artist_by_schema.spotify_uri,
+        defaults=dict(
+            name=artist_by_schema.name
+        )
+    )
 
     if created:
         logger.info(
@@ -141,16 +141,16 @@ def save_album_to_database(album_dict: dict) -> Album:
 
     album_type, created = AlbumType.objects.get_or_create(name=album_by_schema.album_type)
 
-    album_dict_for_save = {
-        'name': album_by_schema.name,
-        'spotify_id': album_by_schema.spotify_id,
-        'spotify_uri': album_by_schema.spotify_uri,
-        'album_image_url': album_by_schema.image_url,
-        'album_type': album_type,
-        'release_date': album_by_schema.release_date,
-    }
-
-    album_instance, created = Album.objects.get_or_create(**album_dict_for_save)
+    album_instance, created = Album.objects.update_or_create(
+        spotify_uri=album_by_schema.spotify_uri,
+        spotify_id=album_by_schema.spotify_id,
+        album_type=album_type,
+        defaults=dict(
+            name=album_by_schema.name,
+            album_image_url=album_by_schema.image_url,
+            release_date=album_by_schema.release_date
+        )
+    )
 
     album_instance.available_markets.add(
         *get_or_create_markets(album_by_schema.available_markets)
@@ -200,16 +200,16 @@ def save_tracks_to_database(track_list: list[dict]) -> list[Track]:
 def save_track_to_database(track_dict: dict) -> Track:
     track_by_schema = TrackSpotifySchema(track_dict)
 
-    track_dict_for_save = {
-        'name': track_by_schema.name,
-        'spotify_id': track_by_schema.spotify_id,
-        'spotify_uri': track_by_schema.spotify_uri,
-        'is_explicit': track_by_schema.is_explicit,
-        'track_number_of_album': track_by_schema.track_number_of_album,
-        'duration_ms': track_by_schema.duration_ms,
-    }
-
-    track_instance, created = Track.objects.get_or_create(**track_dict_for_save)
+    track_instance, created = Track.objects.update_or_create(
+        spotify_id=track_by_schema.spotify_id,
+        spotify_uri=track_by_schema.spotify_uri,
+        defaults=dict(
+            name=track_by_schema.name,
+            is_explicit=track_by_schema.is_explicit,
+            track_number_of_album=track_by_schema.track_number_of_album,
+            duration_ms=track_by_schema.duration_ms
+        )
+    )
 
     track_instance.available_markets.add(
         *get_or_create_markets(track_by_schema.available_markets)

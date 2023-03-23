@@ -1,7 +1,19 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxLengthValidator, MinLengthValidator
+
+
+class Comment(models.Model):
+    creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    comment_parent = models.ForeignKey('Comment', on_delete=models.CASCADE, null=True)
+    content = models.TextField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField(db_index=True)
+    content_object = GenericForeignKey("content_type", "object_id")
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    modified_at = models.DateTimeField(auto_now=True)
 
 
 class ExternalID(models.Model):
@@ -61,6 +73,7 @@ class Track(models.Model):
     artists = models.ManyToManyField('Artist', related_name='tracks')
     available_markets = models.ManyToManyField('Market', related_name='tracks')
     external_ids = GenericRelation(ExternalID)
+    comments = GenericRelation(Comment, related_name='tracks')
     is_full_record = models.BooleanField('Full record about track', default=False)
 
     def __str__(self):
@@ -104,6 +117,7 @@ class Album(models.Model):
     genres = models.ManyToManyField('Genre',  related_name='albums')
     available_markets = models.ManyToManyField('Market', related_name='albums')
     external_ids = GenericRelation(ExternalID)
+    comments = GenericRelation(Comment, related_name='albums')
     is_full_record = models.BooleanField('Full record about album', default=False)
 
     def __str__(self):
