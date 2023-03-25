@@ -10,7 +10,14 @@ from music_app.models import (
     Market,
     ExternalID,
     Genre,
+    Comment,
 )
+
+
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
 
 
 class ExternalIDSerializer(serializers.ModelSerializer):

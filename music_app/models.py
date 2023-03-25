@@ -53,6 +53,7 @@ class Artist(models.Model):
     ], unique=True, null=False, db_index=True)
     spotify_uri = models.CharField('Spotify URI', max_length=50, unique=True, null=False)
     genres = models.ManyToManyField('Genre', related_name='artists')
+    comments = GenericRelation(Comment, related_name='artist')
     is_full_record = models.BooleanField('Full record about artist', default=False)
 
     def __str__(self):
@@ -73,7 +74,7 @@ class Track(models.Model):
     artists = models.ManyToManyField('Artist', related_name='tracks')
     available_markets = models.ManyToManyField('Market', related_name='tracks')
     external_ids = GenericRelation(ExternalID)
-    comments = GenericRelation(Comment, related_name='tracks')
+    comments = GenericRelation(Comment, related_name='track')
     is_full_record = models.BooleanField('Full record about track', default=False)
 
     def __str__(self):
@@ -117,7 +118,7 @@ class Album(models.Model):
     genres = models.ManyToManyField('Genre',  related_name='albums')
     available_markets = models.ManyToManyField('Market', related_name='albums')
     external_ids = GenericRelation(ExternalID)
-    comments = GenericRelation(Comment, related_name='albums')
+    comments = GenericRelation(Comment, related_name='album')
     is_full_record = models.BooleanField('Full record about album', default=False)
 
     def __str__(self):
