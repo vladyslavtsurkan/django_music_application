@@ -21,7 +21,7 @@ class CustomUserManager(UserManager):
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(email, password, **extra_fields)
 
-    def create_superuser(self, email, password, **extra_fields):
+    def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -39,7 +39,7 @@ class CustomUser(AbstractUser):
         _("email address"),
         unique=True,
     )
-    favorite_tracks = models.ManyToManyField(Track, related_name='user_likes')
+    favourite_tracks = models.ManyToManyField(Track, related_name='user_likes')
 
     objects = CustomUserManager()
 

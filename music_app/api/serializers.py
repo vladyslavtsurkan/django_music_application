@@ -15,9 +15,19 @@ from music_app.models import (
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    content_type = serializers.CharField(source='content_type.model')
+    object_id = serializers.IntegerField()
+    content_object = serializers.SerializerMethodField()
+
     class Meta:
         model = Comment
-        fields = '__all__'
+        fields = [
+            'id', 'content_type', 'object_id', 'content_object', 'content', 'created_at', 'updated_at', 'creator',
+            'parent', 'children',
+        ]
+
+    def get_content_object(self):
+        return str(self.content_object)
 
 
 class ExternalIDSerializer(serializers.ModelSerializer):

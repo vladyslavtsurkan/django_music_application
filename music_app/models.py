@@ -7,13 +7,20 @@ from django.core.validators import MaxLengthValidator, MinLengthValidator
 
 class Comment(models.Model):
     creator = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    comment_parent = models.ForeignKey('Comment', on_delete=models.CASCADE, null=True)
     content = models.TextField()
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey("content_type", "object_id")
     created_at = models.DateTimeField(auto_now_add=True, db_index=True)
     modified_at = models.DateTimeField(auto_now=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True)
+    children = GenericRelation('self')
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.content[:15]}...' if len(self.content) > 15 else f'{self.content}'
 
 
 class ExternalID(models.Model):
