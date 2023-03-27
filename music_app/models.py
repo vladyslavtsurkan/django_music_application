@@ -3,6 +3,7 @@ from django.conf import settings
 from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxLengthValidator, MinLengthValidator
+from django.utils.translation import gettext_lazy as _
 
 
 class Comment(models.Model):
@@ -24,8 +25,8 @@ class Comment(models.Model):
 
 
 class ExternalID(models.Model):
-    name = models.CharField('External ID name', max_length=50, null=False)
-    value = models.CharField('External ID value', max_length=50, null=False)
+    name = models.CharField(_('External ID name'), max_length=50, null=False)
+    value = models.CharField(_('External ID value'), max_length=50, null=False)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=False)
     object_id = models.PositiveIntegerField(db_index=True)
     content_object = GenericForeignKey("content_type", "object_id")
@@ -35,7 +36,7 @@ class ExternalID(models.Model):
 
 
 class Market(models.Model):
-    code = models.CharField('Code Market', max_length=2, validators=[
+    code = models.CharField(_('Code Market'), max_length=2, validators=[
         MaxLengthValidator(2),
         MinLengthValidator(2),
     ], null=False, unique=True)
@@ -45,15 +46,15 @@ class Market(models.Model):
 
 
 class Genre(models.Model):
-    name = models.CharField('Genre name', max_length=100, null=False, unique=True)
+    name = models.CharField(_('Genre name'), max_length=100, null=False, unique=True)
 
     def __str__(self):
         return self.name
 
 
 class Artist(models.Model):
-    name = models.CharField("Group name", max_length=300, null=False)
-    artist_image_url = models.URLField('Artist image URL', null=True)
+    name = models.CharField(_("Group name"), max_length=300, null=False)
+    artist_image_url = models.URLField(_('Artist image URL'), null=True)
     spotify_id = models.CharField('Spotify ID', max_length=22, validators=[
         MaxLengthValidator(22),
         MinLengthValidator(22),
@@ -61,49 +62,49 @@ class Artist(models.Model):
     spotify_uri = models.CharField('Spotify URI', max_length=50, unique=True, null=False)
     genres = models.ManyToManyField('Genre', related_name='artists')
     comments = GenericRelation(Comment, related_name='artist')
-    is_full_record = models.BooleanField('Full record about artist', default=False)
+    is_full_record = models.BooleanField(_('Full record about artist'), default=False)
 
     def __str__(self):
         return self.name
 
 
 class Track(models.Model):
-    name = models.CharField('Track name', max_length=300, null=False)
-    track_number_of_album = models.PositiveSmallIntegerField('Track number of album')
-    duration_ms = models.PositiveIntegerField('Track duration (ms)')
+    name = models.CharField(_('Track name'), max_length=300, null=False)
+    track_number_of_album = models.PositiveSmallIntegerField(_('Track number of album'))
+    duration_ms = models.PositiveIntegerField(_('Track duration (ms)'))
     spotify_id = models.CharField('Spotify ID', max_length=22, validators=[
         MaxLengthValidator(22),
         MinLengthValidator(22),
     ], unique=True, null=False, db_index=True)
     spotify_uri = models.CharField('Spotify URI', max_length=50, unique=True)
-    is_explicit = models.BooleanField('Explicit')
+    is_explicit = models.BooleanField(_('Explicit'))
     album = models.ForeignKey('Album', related_name='tracks', on_delete=models.CASCADE, null=True)
     artists = models.ManyToManyField('Artist', related_name='tracks')
     available_markets = models.ManyToManyField('Market', related_name='tracks')
     external_ids = GenericRelation(ExternalID)
     comments = GenericRelation(Comment, related_name='track')
-    is_full_record = models.BooleanField('Full record about track', default=False)
+    is_full_record = models.BooleanField(_('Full record about track'), default=False)
 
     def __str__(self):
         return self.name
 
 
 class AlbumType(models.Model):
-    name = models.CharField('Album type name', max_length=30, null=False, unique=True)
+    name = models.CharField(_('Album type name'), max_length=30, null=False, unique=True)
 
     def __str__(self):
         return self.name
 
 
 class CopyrightAlbumType(models.Model):
-    name = models.CharField('Copyright type name', max_length=20, null=False, unique=True)
+    name = models.CharField(_('Copyright type name'), max_length=20, null=False, unique=True)
 
     def __str__(self):
         return self.name
 
 
 class CopyrightAlbum(models.Model):
-    text = models.CharField('Copyright text', max_length=300, null=False)
+    text = models.CharField(_('Copyright text'), max_length=300, null=False)
     copyright_type = models.ForeignKey('CopyrightAlbumType', on_delete=models.CASCADE, null=False)
 
     def __str__(self):
@@ -111,14 +112,14 @@ class CopyrightAlbum(models.Model):
 
 
 class Album(models.Model):
-    name = models.CharField('Album name', max_length=300, null=False)
+    name = models.CharField(_('Album name'), max_length=300, null=False)
     spotify_id = models.CharField('Spotify ID', max_length=22, validators=[
         MaxLengthValidator(22),
         MinLengthValidator(22),
     ], unique=True, null=False, db_index=True)
     spotify_uri = models.CharField('Spotify URI', max_length=50, null=False, unique=True)
-    release_date = models.DateField('Release date')
-    album_image_url = models.URLField('Album image URL', null=True)
+    release_date = models.DateField(_('Release date'))
+    album_image_url = models.URLField(_('Album image URL'), null=True)
     album_type = models.ForeignKey('AlbumType', on_delete=models.CASCADE)
     copyrights = models.ManyToManyField('CopyrightAlbum', related_name='albums')
     artists = models.ManyToManyField('Artist', related_name='albums')
@@ -126,7 +127,7 @@ class Album(models.Model):
     available_markets = models.ManyToManyField('Market', related_name='albums')
     external_ids = GenericRelation(ExternalID)
     comments = GenericRelation(Comment, related_name='album')
-    is_full_record = models.BooleanField('Full record about album', default=False)
+    is_full_record = models.BooleanField(_('Full record about album'), default=False)
 
     def __str__(self):
         return self.name
