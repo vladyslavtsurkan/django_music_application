@@ -77,7 +77,7 @@ class ArtistDetailSerializer(ArtistSerializer):
 
 
 class AlbumSerializer(serializers.ModelSerializer):
-    album_type = NameStringRelatedField(read_only=True)
+    album_type = serializers.CharField(read_only=True, source='album_type.name')
     artists = ArtistSerializer(read_only=True, many=True)
     available_markets = AvailableMarketsStringRelatedField(many=True, read_only=True)
 
