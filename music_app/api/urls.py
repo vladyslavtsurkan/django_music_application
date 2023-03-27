@@ -6,7 +6,7 @@ from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 
-from music_app.api.views import ArtistViewSet, AlbumViewSet, TrackViewSet
+from music_app.api.views import ArtistViewSet, AlbumViewSet, TrackViewSet, CommentViewSet
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -22,6 +22,7 @@ router = DefaultRouter()
 router.register('artists', ArtistViewSet)
 router.register('albums', AlbumViewSet)
 router.register('tracks', TrackViewSet)
+router.register('comments', CommentViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

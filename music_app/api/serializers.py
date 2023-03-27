@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.models import ContentType
+
 from rest_framework import serializers
 
 from music_app.models import (
@@ -14,20 +16,24 @@ from music_app.models import (
 )
 
 
-class CommentSerializer(serializers.ModelSerializer):
-    content_type = serializers.CharField(source='content_type.model')
-    object_id = serializers.IntegerField()
-    content_object = serializers.SerializerMethodField()
+class CommentSerializer(serializers.HyperlinkedModelSerializer):
+    content_type = serializers.ChoiceField(['artist', 'album', 'track'], source='content_type.model')
+    creator = serializers.CharField(source='creator.email', read_only=True)
+    parent = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all())
 
     class Meta:
         model = Comment
         fields = [
-            'id', 'content_type', 'object_id', 'content_object', 'content', 'created_at', 'updated_at', 'creator',
-            'parent', 'children',
+            'id', 'content_type', 'object_id', 'content', 'created_at', 'modified_at', 'creator',
+            'parent',
         ]
 
-    def get_content_object(self):
-        return str(self.content_object)
+    def create(self, validated_data):
+        content_type_name = validated_data.pop('content_type')['model']
+        print(content_type_name)
+        content_type = ContentType.objects.get(app_label='music_app', model=content_type_name)
+        comment = Comment.objects.create(content_type=content_type, **validated_data)
+        return comment
 
 
 class ExternalIDSerializer(serializers.ModelSerializer):

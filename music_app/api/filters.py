@@ -37,3 +37,11 @@ class AlbumFilterSet(BaseSpotifyFilterSet):
     class Meta:
         model = Album
         fields = []
+
+
+class CommentFilterSet(filters.FilterSet):
+    creator = filters.NumberFilter(
+        field_name='id',
+        lookup_expr='exact',
+        label='Creator ID',
+    )

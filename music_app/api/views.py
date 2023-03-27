@@ -1,8 +1,10 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
-from rest_framework.viewsets import ReadOnlyModelViewSet
 
-from music_app.models import Artist, Album, Track
+from rest_framework.viewsets import ReadOnlyModelViewSet, ModelViewSet
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAdminUser
+
+from music_app.models import Artist, Album, Track, Comment
 from music_app.api.serializers import (
     ArtistSerializer,
     ArtistDetailSerializer,
@@ -10,13 +12,16 @@ from music_app.api.serializers import (
     AlbumDetailSerializer,
     TrackSerializer,
     TrackDetailSerializer,
+    CommentSerializer,
 )
 from music_app.api.filters import (
     ArtistFilterSet,
     TrackFilterSet,
     AlbumFilterSet,
+    CommentFilterSet,
 )
-from music_app.api.pagination import TrackResultsSetPagination
+from music_app.api.permissions import IsCreatorOrReadOnly
+from music_app.api.pagination import TrackResultsSetPagination, AlbumResultsSetPagination
 
 
 class ArtistViewSet(ReadOnlyModelViewSet):
@@ -47,6 +52,7 @@ class ArtistViewSet(ReadOnlyModelViewSet):
 
 class AlbumViewSet(ReadOnlyModelViewSet):
     queryset = Album.objects.all()
+    pagination_class = AlbumResultsSetPagination
     filterset_class = AlbumFilterSet
 
     def get_serializer_class(self):
@@ -110,3 +116,13 @@ class TrackViewSet(ReadOnlyModelViewSet):
     @method_decorator(cache_page(300))
     def retrieve(self, request, *args, **kwargs):
         return super(TrackViewSet, self).retrieve(request, *args, **kwargs)
+
+
+class CommentViewSet(ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    filterset_class = CommentFilterSet
+    permission_classes = [IsAuthenticatedOrReadOnly & (IsCreatorOrReadOnly | IsAdminUser)]
+
+    def perform_create(self, serializer):
+        serializer.save(creator=self.request.user)
