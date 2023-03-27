@@ -4,34 +4,46 @@ from rest_framework import serializers
 
 from music_app.models import (
     Album,
-    AlbumType,
-    CopyrightAlbumType,
     CopyrightAlbum,
     Artist,
     Track,
-    Market,
     ExternalID,
-    Genre,
     Comment,
 )
+from music_app.apps import MusicAppConfig
+
+
+class CustomStringRelatedField(serializers.StringRelatedField):
+    def to_internal_value(self, data):
+        pass
+
+
+class AvailableMarketsStringRelatedField(CustomStringRelatedField):
+    def to_representation(self, value):
+        return str(value.code)
+
+
+class NameStringRelatedField(CustomStringRelatedField):
+    def to_representation(self, value):
+        return str(value.name)
 
 
 class CommentSerializer(serializers.HyperlinkedModelSerializer):
     content_type = serializers.ChoiceField(['artist', 'album', 'track'], source='content_type.model')
     creator = serializers.CharField(source='creator.email', read_only=True)
     parent = serializers.PrimaryKeyRelatedField(queryset=Comment.objects.all())
+    children = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Comment
         fields = [
             'id', 'content_type', 'object_id', 'content', 'created_at', 'modified_at', 'creator',
-            'parent',
+            'parent', 'children',
         ]
 
     def create(self, validated_data):
         content_type_name = validated_data.pop('content_type')['model']
-        print(content_type_name)
-        content_type = ContentType.objects.get(app_label='music_app', model=content_type_name)
+        content_type = ContentType.objects.get(app_label=MusicAppConfig.name, model=content_type_name)
         comment = Comment.objects.create(content_type=content_type, **validated_data)
         return comment
 
@@ -39,39 +51,15 @@ class CommentSerializer(serializers.HyperlinkedModelSerializer):
 class ExternalIDSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExternalID
-        fields = ['id', 'name', 'value']
-
-
-class MarketSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Market
-        fields = '__all__'
-
-
-class GenreSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Genre
-        fields = '__all__'
-
-
-class AlbumTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AlbumType
-        fields = '__all__'
-
-
-class CopyrightAlbumTypeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = CopyrightAlbumType
-        fields = '__all__'
+        fields = ['name', 'value']
 
 
 class CopyrightAlbumSerializer(serializers.ModelSerializer):
-    copyright_type = CopyrightAlbumTypeSerializer(read_only=True)
+    copyright_type = NameStringRelatedField(read_only=True)
 
     class Meta:
         model = CopyrightAlbum
-        fields = ['id', 'text', 'copyright_type']
+        fields = ['text', 'copyright_type']
 
 
 class ArtistSerializer(serializers.ModelSerializer):
@@ -81,7 +69,7 @@ class ArtistSerializer(serializers.ModelSerializer):
 
 
 class ArtistDetailSerializer(ArtistSerializer):
-    genres = GenreSerializer(many=True, read_only=True)
+    genres = NameStringRelatedField(many=True, read_only=True)
 
     class Meta(ArtistSerializer.Meta):
         exclude = []
@@ -89,9 +77,9 @@ class ArtistDetailSerializer(ArtistSerializer):
 
 
 class AlbumSerializer(serializers.ModelSerializer):
-    album_type = AlbumTypeSerializer(read_only=True)
+    album_type = NameStringRelatedField(read_only=True)
     artists = ArtistSerializer(read_only=True, many=True)
-    available_markets = MarketSerializer(many=True, read_only=True)
+    available_markets = AvailableMarketsStringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Album
@@ -100,18 +88,17 @@ class AlbumSerializer(serializers.ModelSerializer):
 
 class AlbumTrackDetailSerializer(serializers.ModelSerializer):
     artists = ArtistSerializer(read_only=True, many=True)
-    available_markets = MarketSerializer(many=True, read_only=True)
+    available_markets = AvailableMarketsStringRelatedField(many=True, read_only=True)
     external_ids = ExternalIDSerializer(many=True, read_only=True)
 
     class Meta:
         model = Track
-        # fields = '__all__'
         exclude = ['album']
 
 
 class AlbumDetailSerializer(AlbumSerializer):
     copyrights = CopyrightAlbumSerializer(read_only=True, many=True)
-    genres = GenreSerializer(many=True, read_only=True)
+    genres = NameStringRelatedField(many=True, read_only=True)
     external_ids = ExternalIDSerializer(many=True, read_only=True)
     tracks = AlbumTrackDetailSerializer(many=True, read_only=True)
 
@@ -123,7 +110,7 @@ class AlbumDetailSerializer(AlbumSerializer):
 class TrackSerializer(serializers.ModelSerializer):
     album = AlbumSerializer(read_only=True)
     artists = ArtistSerializer(read_only=True, many=True)
-    available_markets = MarketSerializer(many=True, read_only=True)
+    available_markets = AvailableMarketsStringRelatedField(many=True, read_only=True)
 
     class Meta:
         model = Track
